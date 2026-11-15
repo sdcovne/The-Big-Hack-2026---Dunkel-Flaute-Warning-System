@@ -376,9 +376,11 @@ TX = {
     "acc_ll": ("Rispetto a un modello semplice", "Versus a simple model"),
     "acc_ll_v": ("{r}× più verosimile", "{r}× more likely"),
     "acc_ll_h": ("Sugli inverni mai visti, ogni giorno reale è in media {r} volte più probabile per il nostro modello che per un modello "
-                 "senza regimi meteo.",
-                 "On unseen winters, each real day is on average {r} times more likely under our model than under a model "
-                 "without weather regimes."),
+                 "di base. Il modello di base estrae ogni giorno temperatura e produzione eolica + solare da un'unica campana "
+                 "gaussiana, nell'ipotesi di giorni indipendenti: niente regimi meteo, niente memoria del giorno prima.",
+                 "On unseen winters, each real day is on average {r} times more likely under our model than under a baseline "
+                 "model. The baseline draws each day's temperature and wind + solar output from a single Gaussian bell curve, "
+                 "assuming independent days: no weather regimes, no memory of the previous day."),
     "su": ("su", "of"),
     "lim_title": ("Limiti della versione attuale", "Limitations of the current version"),
     "lim_md": (
