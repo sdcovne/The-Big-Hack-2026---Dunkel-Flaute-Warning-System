@@ -124,6 +124,7 @@ Alert levels:
 
 ```
 dunkelflaute-ews/
+├── LICENSE
 ├── README.md
 ├── requirements.txt
 ├── .streamlit/
@@ -426,4 +427,6 @@ Shown in the app's Notes:
 ---
 
 ## License
-Not yet specified. Add a `LICENSE` file before publishing the repository.
+The code is released under the [MIT License](LICENSE).
+
+The input data keep the terms of their original providers (Open-Meteo / ERA5, PVGIS, Eurostat; see *Data sources*). Please credit them when you reuse the datasets in `data/`.
