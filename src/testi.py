@@ -5,8 +5,8 @@ TX = {
     "page_title": ("Dunkelflaute Early Warning", "Dunkelflaute Early Warning"),
     "brand_sub": ("Vedere · Misurare · Decidere", "See · Measure · Decide"),
     "pdf_btn": ("📄 Approccio AI (PDF)", "📄 AI approach (PDF)"),
-    "pdf_help": ("Scarica l'approfondimento tecnico sul modello generativo (in inglese)",
-                 "Download the technical deep-dive on the generative model"),
+    "pdf_help": ("Apri su GitHub l'approfondimento tecnico sul modello generativo (in inglese)",
+                 "Open the technical deep-dive on the generative model on GitHub"),
     "eyebrow": ("Early Warning System · Rete elettrica 2030", "Early Warning System · 2030 power grid"),
     "hero_p": ("Generiamo gli eventi che la storia non ci ha ancora mostrato, li simuliamo sulla rete e diciamo a gestori di rete, "
                "industrie e comunità cosa fare giorni prima che arrivino.",

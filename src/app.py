@@ -34,12 +34,10 @@ with col_lang:
 t = make_t(lang)
 EN = lang == "en"
 
-# Download diretto dell'approfondimento sull'approccio AI (docs/AI_approach.pdf)
-PDF_PATH = ROOT / "docs" / "AI_approach.pdf"
+# Link diretto all'approfondimento sull'approccio AI su GitHub
+PDF_URL = "https://github.com/sdcovne/The-Big-Hack-2026---Dunkel-Flaute-Warning-System/blob/main/docs/AI_approach.pdf"
 with col_pdf:
-    if PDF_PATH.exists():
-        st.download_button(t("pdf_btn"), data=PDF_PATH.read_bytes(), file_name="AI_approach.pdf",
-                           mime="application/pdf", help=t("pdf_help"), use_container_width=True)
+    st.link_button(t("pdf_btn"), PDF_URL, help=t("pdf_help"), use_container_width=True)
 
 # ==============================================================================
 # DESIGN SYSTEM — palette energetica, tema chiaro
@@ -316,7 +314,6 @@ def c_accumulo(df, pp, key, ip_t, x):
 # SIDEBAR
 # ==============================================================================
 st.sidebar.markdown(f'<div class="brand">⚡ Dunkelflaute EWS</div><div class="brand-sub">{t("brand_sub")}</div>', unsafe_allow_html=True)
-demo = st.sidebar.toggle(t("demo"), value=False, help=t("demo_help"))
 
 df_input, fonte = None, None
 for nome in ["simulazione_dunkelflaute_nov2029_gen2030.csv"]:
@@ -352,21 +349,7 @@ with st.sidebar.expander(t("more_hyp")):
 
 finestra_gg = 21
 
-# ---------------- modalità presentazione ----------------
-S100 = "sintetico_100" if "sintetico_100" in scenari else "dataset"
-PASSI = {
-    1: ("d1", "d1s", dict(scen="dataset", X=7, piano=True, tab="see")),
-    2: ("d2", "d2s", dict(scen="dataset", X=7, piano=False, tab="measure")),
-    3: ("d3", "d3s", dict(scen="dataset", X=7, piano=True, tab="measure")),
-    4: ("d4", "d4s", dict(scen=S100, X=7, piano=True, tab="decide")),
-    5: ("d5", "d5s", dict(scen=S100, X=7, piano=True, tab="decide")),
-}
-passo, tab_primo, ov = None, "see", None
-if demo:
-    passo = st.radio("demo_step", list(PASSI.keys()), horizontal=True, format_func=lambda k: t(PASSI[k][0]),
-                     label_visibility="collapsed")
-    ov = PASSI[passo][2]
-    scen_key, piano, tab_primo = ov["scen"], ov["piano"], ov["tab"]
+tab_primo = "see"
 
 ip = M.Ipotesi(E_max=float(E_max), P_acc=float(P_acc), F_max=float(F_max), scorta_base=float(scorta),
                soc_senza_precarica=float(soc_mercato))
@@ -406,18 +389,12 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-if demo:
-    st.markdown(f'<div class="demo"><div class="t">{t(PASSI[passo][0])}</div><div class="s">{t(PASSI[passo][1])}</div></div>',
-                unsafe_allow_html=True)
-
 # ==============================================================================
 # BOX DI ALLERTA con il cursore dei giorni di anticipo
 # ==============================================================================
 box = st.container(border=True)
 with box:
-    preavviso = st.slider(t("lead_main"), 0, 14, 7, format="T−%d", disabled=demo, help=t("lead_main_help"), key="preavviso")
-if demo:
-    preavviso = ov["X"]
+    preavviso = st.slider(t("lead_main"), 0, 14, 7, format="T−%d", help=t("lead_main_help"), key="preavviso")
 
 with st.spinner(t("spinner")):
     df_con, kpi_con = c_sim(df_input, PARAMS_PATH, scen_key, ip_t, preavviso, piano)
