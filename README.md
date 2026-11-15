@@ -39,6 +39,12 @@ The interface is available in **Italian and English** (flag switch at the top ri
 
 ## Quick start
 
+### Try it online
+The app is deployed on Streamlit Community Cloud. Open it in the browser, no installation needed:
+
+**👉 https://dunkelflaute-warning-system.streamlit.app/**
+
+### Run it locally
 Requirements: **Python 3.10+**.
 
 ```bash
