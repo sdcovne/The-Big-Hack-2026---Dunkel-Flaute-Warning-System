@@ -59,9 +59,10 @@ st.markdown(f"""
         --card:{P['card']}; --ok:{P['ok']}; --warn:{P['warn']}; --crit:{P['crit']}; }}
 html, body, [class*="css"], .stApp, .stMarkdown, button, input, textarea, select {{ font-family:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif !important; }}
 .stApp {{ background:{P['sfondo']}; color:var(--testo); }}
-.block-container {{ padding-top:1.0rem; padding-bottom:3rem; max-width:1900px; }}
+.block-container {{ padding-top:3.2rem; padding-bottom:3rem; max-width:1900px; }}
 #MainMenu, footer, [data-testid="stDecoration"] {{ visibility:hidden; height:0; }}
-[data-testid="stHeader"] {{ background:transparent; }}
+[data-testid="stHeader"] {{ background:transparent; pointer-events:none; }}
+[data-testid="stHeader"] button, [data-testid="stHeader"] a, [data-testid="stToolbar"], [data-testid="stToolbar"] * {{ pointer-events:auto; }}
 div[role="radiogroup"][aria-label="Lingua / Language"] {{ justify-content:flex-end; }}
 
 .hero {{ background:linear-gradient(120deg,#0B5CAD 0%,#1B7BB8 55%,#1B9AAA 100%); border-radius:16px; padding:24px 30px; color:#fff;
