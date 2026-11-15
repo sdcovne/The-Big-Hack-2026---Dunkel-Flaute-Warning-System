@@ -105,7 +105,7 @@ Alert levels:
 | **① See** | Forecast of wind + solar output (median and 25–75% band), simulated scenario, total and essential electricity demand. Toggle: *24 h moving average* |
 | **② Measure** | Hourly balance. By default: solar, wind, total demand, essential demand. *Show mitigation effects* adds the five options and the essential demand not served. Comparison table with/without warning; scenario assumptions |
 | **③ Decide** | Timeline of the five actions with "today" marked; curve of essential demand not served vs days of warning ("each day of warning is worth N GWh"); message sent to energy communities and citizens |
-| **🤖 AI approach** | Why AI; generator accuracy (3 KPIs + table); why the generated maximum duration is longer; duration distribution; learned weather regimes; storage needed (history vs synthetic); forecast scenarios; limitations |
+| **🤖 AI approach** | Why AI; generator accuracy (3 KPIs + table); duration distribution; learned weather regimes; storage needed (history vs synthetic); forecast scenarios; limitations |
 
 ### 4. Sidebar
 - **2030 power grid assumptions.**
