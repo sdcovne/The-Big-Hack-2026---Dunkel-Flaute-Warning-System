@@ -4,6 +4,8 @@
 
 **See the risk → measure it → decide in time.**
 
+**👉 https://dunkelflaute-warning-system.streamlit.app/**
+
 In a power grid built mostly on wind and solar, the biggest systemic risk is a *Dunkelflaute*: several days with almost no wind and sun, typically during a cold winter anticyclone. This prototype generates the events history has not shown yet with a small generative AI model, simulates them on a 2030 German grid (Digital Twin), and tells grid operators, industry and energy communities what to do, and by when, days before the event arrives.
 
 > *"We cannot stop the Dunkelflaute. We can stop being surprised by it."*
