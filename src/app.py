@@ -708,27 +708,6 @@ with tabs["ai"]:
         st.dataframe(pd.DataFrame(righe_m), hide_index=True, use_container_width=True)
         st.caption(t("tm_note"))
 
-        # specchietto: perché la durata massima generata è più lunga, e il legame con la crescita della domanda
-        bins_d = np.array(v["bins_durata_gg"]); fs = np.array(v["freq_durata_sintetico"])
-        dh = int(v["durata_max_storico"])
-        n_ev_sint = v["eventi_per_inverno_sintetico"] * v["n_inverni_sintetici"]
-        n_lunghi = float(fs[bins_d > dh].sum()) * n_ev_sint
-        ogni = v["n_inverni_sintetici"] / n_lunghi if n_lunghi > 0 else float("inf")
-        sc_ds = M.applica_scenario(prep, scenari["dataset"])
-        dd_ = sc_ds["df"]; a0, a1 = sc_ds["t0"], sc_ds["t1"]
-        dom_ev = float(dd_.potenza_consumata.values[a0:a1].mean())
-        ren_ev = float((dd_.potenza_generata_solare + dd_.potenza_generata_eolica).values[a0:a1].mean())
-        CRESCITA = 1.125   # crescita media della domanda al 2030 usata nel dataset
-        dopo = (dom_ev - ren_ev) * 24
-        extra = dom_ev * (1 - 1 / CRESCITA) * 24
-        prima = dopo - extra
-        with st.container(border=True):
-            st.markdown(f"**⏱ {t('dmax_title')}**")
-            st.markdown(t("dmax_md", nh=v["n_inverni_storici"], ns=fmt(v["n_inverni_sintetici"]), dh=dh,
-                          ogni=fmt(round(ogni, -1) if ogni < float("inf") else 0), sim=f"{sovrap*100:.0f}",
-                          extra=fmt(extra), prima=fmt(prima), dopo=fmt(dopo), pct=f"{extra / prima * 100:.0f}",
-                          e9=fmt(extra * dh / 1000, 1), dmax=int(v["durata_max_sintetico"]),
-                          emax=fmt(extra * v["durata_max_sintetico"] / 1000, 1)))
         sezione(t("gen_title"), t("gen_cap", n=v["n_inverni_storici"], m=fmt(v["n_inverni_sintetici"])))
         c1, c2 = st.columns([1.6, 1])
         with c1, st.container(border=True):
