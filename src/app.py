@@ -27,12 +27,19 @@ st.set_page_config(page_title="Dunkelflaute Early Warning", page_icon="⚡", lay
 # ==============================================================================
 if "lang" not in st.session_state:
     st.session_state["lang"] = "it"
-_, col_lang = st.columns([10, 1.6])
+_, col_pdf, col_lang = st.columns([8.2, 2.2, 1.6])
 with col_lang:
     lang = st.radio("Lingua / Language", ["it", "en"], key="lang", horizontal=True, label_visibility="collapsed",
                     format_func=lambda v: "🇮🇹 IT" if v == "it" else "🇬🇧 EN")
 t = make_t(lang)
 EN = lang == "en"
+
+# Download diretto dell'approfondimento sull'approccio AI (docs/AI_approach.pdf)
+PDF_PATH = ROOT / "docs" / "AI_approach.pdf"
+with col_pdf:
+    if PDF_PATH.exists():
+        st.download_button(t("pdf_btn"), data=PDF_PATH.read_bytes(), file_name="AI_approach.pdf",
+                           mime="application/pdf", help=t("pdf_help"), use_container_width=True)
 
 # ==============================================================================
 # DESIGN SYSTEM — palette energetica, tema chiaro
@@ -160,6 +167,27 @@ div[role="radiogroup"][aria-label="Lingua / Language"] {{ justify-content:flex-e
 .notes li {{ font-size:.76rem; color:var(--testo-soft); line-height:1.5; margin-bottom:6px; scroll-margin-top:80px; }}
 .notes li:target {{ background:#FFF8E8; }}
 .footer-note {{ font-size:.75rem; color:var(--testo-soft); margin-top:28px; text-align:center; }}
+/* ---------- Contrasto garantito: leggibile anche se il servizio o il browser applicano il tema scuro ---------- */
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {{ color-scheme: light; color:var(--testo); }}
+[data-testid="stAppViewContainer"] :is(p, li, span, label, h1, h2, h3, h4, h5, h6, strong, em, small, summary, code),
+[data-testid="stSidebar"] :is(p, li, span, label, h1, h2, h3, h4, h5, h6, strong, em, small, summary) {{ color:var(--testo) !important; }}
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * {{ color:var(--testo-soft) !important; }}
+[data-testid="stMetricValue"], [data-testid="stMetricValue"] * {{ color:var(--testo) !important; }}
+[data-testid="stMetricLabel"], [data-testid="stMetricLabel"] * {{ color:var(--testo-soft) !important; }}
+[data-testid="stMetricDelta"] * {{ color:inherit !important; }}
+[data-testid="stThumbValue"], [data-testid="stTickBarMin"], [data-testid="stTickBarMax"] {{ color:var(--testo) !important; }}
+[data-testid="stAppViewContainer"] input, [data-testid="stSidebar"] input {{ color:var(--testo) !important; background:#FFFFFF !important; }}
+[data-testid="stExpander"] details, [data-testid="stExpander"] summary {{ background:var(--card) !important; }}
+.stTabs [aria-selected="true"] p {{ color:var(--primario) !important; }}
+/* eccezioni: testi bianchi su sfondo colorato e testi volutamente attenuati */
+.hero, .hero *, .badge, .badge * {{ color:#FFFFFF !important; }}
+.tip {{ color:var(--primario) !important; }}
+.tip .tiptext, .tip .tiptext * {{ color:#FFFFFF !important; }}
+.notes li, .notes li *, .notes-c {{ color:var(--testo-soft) !important; }}
+.notes-t {{ color:var(--testo) !important; }}
+.fn {{ color:var(--primario) !important; }}
+.demo .s {{ color:#5B4A1F !important; }}
+
 @media (max-width:1100px) {{ .alert-grid, .acts {{ grid-template-columns:repeat(2,1fr); }} .hero, .chain, .now {{ flex-direction:column; align-items:stretch; }} }}
 </style>
 """, unsafe_allow_html=True)
