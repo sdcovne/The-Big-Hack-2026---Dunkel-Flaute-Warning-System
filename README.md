@@ -124,38 +124,48 @@ dunkelflaute-ews/
 ├── README.md
 ├── requirements.txt
 ├── .streamlit/
-│   └── config.toml                  # light theme
-├── src/
-│   ├── app.py                       # Streamlit interface (IT/EN)
-│   ├── motore.py                    # engine: Digital Twin, actions, forecast scenarios, analyses (no Streamlit)
-│   └── testi.py                     # all interface texts, Italian and English
-├── models/
-│   └── generatore_params.json       # trained generator: regimes, scenarios, climatology, validation
+│   └── config.toml                       # light theme
+├── src/                                  # the application
+│   ├── app.py                            # Streamlit interface (IT/EN)
+│   ├── motore.py                         # engine: Digital Twin, actions, forecast scenarios, analyses (no Streamlit)
+│   └── testi.py                          # all interface texts, Italian and English
+├── scripts/                              # data pipeline, run in order from the repository root
+│   ├── df_config.py                      # configuration: country, 7 weighted points, years, technical assumptions
+│   ├── 01_download.py                    # step 1: downloads raw open data → data/raw/
+│   ├── 02_features.py                    # step 2: raw data → data/processed/hourly_country.csv
+│   ├── 03_addestra_generatore.py         # step 3: trains the AI generator → models/generatore_params.json
+│   └── 04_genera_dataset_2029_2030.py    # step 4: builds the 2029-30 scenario → data/simulazione_…csv
 ├── data/
-│   ├── simulazione_dunkelflaute_nov2029_gen2030.csv   # hourly 2030 scenario used by the app
-│   └── raw/
-│       └── hourly_country.csv       # hourly Germany 2010–2025: wind/solar CF, temperature, demand (see Data sources)
-├── scripts/
-│   ├── addestra_generatore.py       # trains the AI generator → models/generatore_params.json
-│   └── genera_dataset_2029_2030.py  # builds the 2029-30 scenario → data/simulazione_…csv
+│   ├── raw/                              # filled by step 1 (not versioned)
+│   ├── processed/
+│   │   └── hourly_country.csv            # hourly Germany 2010–2025: wind/solar CF, temperature, HDD, demand
+│   └── simulazione_dunkelflaute_nov2029_gen2030.csv   # hourly 2030 scenario used by the app
+├── models/
+│   └── generatore_params.json            # trained generator: regimes, scenarios, climatology, validation
 └── docs/
-    └── AI_approach.pdf              # deep dive on the AI approach
+    └── AI_approach.pdf                   # deep dive on the AI approach
 ```
 
-Module and variable names are in Italian (`motore` = engine, `testi` = texts); the code is commented.
+All derived files are shipped, so the app runs without downloading anything. Module and variable names are in Italian (`motore` = engine, `testi` = texts); the code is commented.
 
 ---
 
 ## How it works
 
 ```
-data/raw/hourly_country.csv (2010–2025)
-   │
-   ├── scripts/genera_dataset_2029_2030.py ──► data/simulazione_dunkelflaute_nov2029_gen2030.csv
-   │      2030 grid, demand +12.5%, 3-day event at −80% of expected output
-   │
-   └── scripts/addestra_generatore.py ──────► models/generatore_params.json
-          AR-HMM generator, 10,000 synthetic winters, 1-in-10/100/1000 events, validation
+Open-Meteo (ERA5) · PVGIS · Eurostat
+        │  scripts/01_download.py
+        ▼
+data/raw/  (hourly weather at 7 points, PV yield, degree-days)
+        │  scripts/02_features.py   (power curve, PV model, national weighting, demand model)
+        ▼
+data/processed/hourly_country.csv  (Germany, hourly, 2010–2025)
+        │
+        ├── scripts/03_addestra_generatore.py ──► models/generatore_params.json
+        │      AR-HMM generator, 10,000 synthetic winters, 1-in-10/100/1000 events, validation
+        │
+        └── scripts/04_genera_dataset_2029_2030.py ──► data/simulazione_dunkelflaute_nov2029_gen2030.csv
+               2030 grid, demand +12.5%, 3-day event at −80% of expected output
                                     │
                                     ▼
                          src/app.py  +  src/motore.py
@@ -290,7 +300,7 @@ With the default assumptions:
 - **Simulated forecast.** Probability and uncertainty come from constructed scenarios, not from real weather forecasts.
 - **Actions and costs** are scenario assumptions drawn from public sources, not calibrated values.
 - **Simplified operation.** Rule-based dispatch, a single aggregate storage, essential demand fixed at 65%.
-- **Simulated input data.** The dataset event is constructed.
+- **Simulated input data.** The dataset event is constructed, and historical demand is a calendar-and-temperature model, not metered load.
 - **Prototype.** A Streamlit demonstration, not a multi-user production service.
 
 **Next steps**
@@ -303,15 +313,26 @@ With the default assumptions:
 
 ## Reproducing data and model
 
-Both scripts use fixed random seeds: running them reproduces the files shipped in the repository exactly.
+Run from the repository root, in order. Steps 3 and 4 use fixed random seeds: they reproduce the shipped files exactly. Step 2 reproduces `hourly_country.csv` from the downloaded raw data. Its `hdd_day` and demand columns have been checked against the shipped file to the 4th decimal.
 
 ```bash
-# 1. Retrain the AI generator (about 1 minute)
-python scripts/addestra_generatore.py data/raw/hourly_country.csv models/generatore_params.json
+# Step 1 – download raw open data into data/raw/ (needs internet; existing files are skipped)
+python scripts/01_download.py                 # Open-Meteo ERA5, PVGIS, Eurostat, current ECMWF ensemble forecast
+python scripts/01_download.py --only meteo    # or one source at a time: meteo | pvgis | eurostat | forecast | nasa
 
-# 2. Rebuild the 2029-30 hourly scenario (a few seconds)
-python scripts/genera_dataset_2029_2030.py data/raw/hourly_country.csv data/simulazione_dunkelflaute_nov2029_gen2030.csv
+# Step 2 – build the national hourly series (and climatology, event catalogue, sizing, calibration checks)
+python scripts/02_features.py
+
+# Step 3 – train the AI generator (about 1 minute)
+python scripts/03_addestra_generatore.py data/processed/hourly_country.csv models/generatore_params.json
+
+# Step 4 – build the 2029-30 hourly scenario (a few seconds)
+python scripts/04_genera_dataset_2029_2030.py data/processed/hourly_country.csv data/simulazione_dunkelflaute_nov2029_gen2030.csv
 ```
+
+Countries, points, years and technical assumptions are set in `scripts/df_config.py`.
+- **Step 1** makes 7 points × 16 years = 112 requests to the free Open-Meteo archive API, with a short pause between calls.
+- **Step 2** also writes `climatology.csv`, `events.csv`, `sizing.csv` and `calibration.csv` to `data/processed/`. These are side outputs, not used by the app.
 
 ---
 
@@ -323,48 +344,55 @@ python scripts/genera_dataset_2029_2030.py data/raw/hourly_country.csv data/simu
 
 ## Data sources
 
-All datasets shipped in this repository are open and are produced from the sources below. The chain is:
+All datasets in this repository are open and are produced from public sources by the scripts in `scripts/`.
 
-```
-ERA5 reanalysis (Copernicus / ECMWF) ──► Open-Meteo Historical Weather API ──► data/raw/hourly_country.csv
-                                                                                  │
-          scripts/addestra_generatore.py ◄────────────────────────────────────────┤
-                    │                                                             │
-                    ▼                                                             ▼
-     models/generatore_params.json                   scripts/genera_dataset_2029_2030.py
-                                                                                  │
-                                                                                  ▼
-                                              data/simulazione_dunkelflaute_nov2029_gen2030.csv
-```
+### Upstream open data (downloaded by `scripts/01_download.py`)
 
-### Datasets in the repository
-
-| File | What it is | Built from | How |
-|---|---|---|---|
-| `data/raw/hourly_country.csv` | Hourly Germany 2010-01-01 → 2025-12-31 (140,256 hours, no gaps): wind and solar capacity factors, temperature, heating degree-days, electricity demand | ERA5 via Open-Meteo (weather); demand model (see below) | Column by column in the table below |
-| `models/generatore_params.json` | Trained AI generator: weather regimes, transition matrix, climatology of expected wind/solar output, 1-in-10/100/1000 scenarios, validation | `hourly_country.csv` (Nov–Jan, 2010-11 … 2024-25) | `scripts/addestra_generatore.py` (fixed seeds, reproducible) |
-| `data/simulazione_dunkelflaute_nov2029_gen2030.csv` | Hourly 2030 scenario, Nov 2029 – Jan 2030 (2,208 hours), with a 3-day Dunkelflaute at −80% of expected output | `hourly_country.csv` + 2030 assumptions | `scripts/genera_dataset_2029_2030.py` (seed 42, reproducible) |
-
-### `hourly_country.csv`: columns and provenance
-
-| Column | Unit | Source / construction |
+| Source | What is downloaded | Used for |
 |---|---|---|
-| `time` | – | Hourly index, continuous (no daylight-saving changes) |
-| `cf_wind` | 0–1 | **ERA5** wind speed at 100 m, retrieved through the **Open-Meteo Historical Weather API** at 9 points weighted over Germany. Converted to capacity factor with a standard turbine power curve: zero below about 3 m/s, full output from about 12 m/s, cut-out above about 25 m/s. Fixed fleet: no trend over the years. |
-| `cf_solar` | 0–1 | **ERA5** surface irradiance (Open-Meteo, same points) / 1000 W/m², with a temperature correction. Annual yield cross-checked against **PVGIS**. |
-| `t2m` | °C | **ERA5** 2 m temperature (Open-Meteo, same points) |
-| `hdd_day` | °C·day | Derived: max(18 °C − daily mean temperature, 0) |
-| `demand_gw` | GW | **Modelled, not metered**: hour-of-week profile + season + heating degree-days, at about 500 TWh/year (the order of magnitude of German consumption) |
-| `demand_essential_gw` | GW | Derived: 0.65 × `demand_gw` (scenario assumption) |
+| **Open-Meteo Historical Weather API** (`archive-api.open-meteo.com/v1/archive`), based on **ERA5** reanalysis (Copernicus / ECMWF) | Hourly `temperature_2m`, `wind_speed_100m` (m/s) and `shortwave_radiation` (GHI), UTC, 2010–2025, at 7 points | Wind and solar capacity factors, temperature, degree-days |
+| **PVGIS API v5.3** (European Commission, JRC; `re.jrc.ec.europa.eu/api/v5_3/PVcalc`) | Annual and monthly yield of 1 kWp, optimal angles, 14% losses, at the same 7 points | Calibrating the solar capacity factor point by point |
+| **Eurostat API**: `nrg_chddr2_a` (heating and cooling degree-days), `nrg_ind_ren` (renewable shares) | Annual values for Germany and its regions since 2010 | Check of the modelled degree-days; context on today's renewable share |
+| **Open-Meteo Ensemble API**, model `ecmwf_ifs025` (51 members, 15 days) | The ensemble forecast of the day the script is run (not an archive) | Prototype of the real forecast chain (not used by the app) |
+| **NASA POWER** (optional, `--only nasa`) | Hourly 50 m wind, irradiance, temperature | Second weather source for comparison (not used by the app) |
 
-**About the demand column.** It is a synthetic load, not the metered German load:
-- an hour-of-week profile + month + `hdd_day` explains 99.6% of its variance;
-- the annual level is flat at about 500 TWh, with no 2020 COVID dip and no 2022–23 energy-crisis reduction;
-- holidays are only weakly visible.
+### The 7 representative points (`scripts/df_config.py`)
+Each point has three weights. *Wind* and *solar* weights reflect where capacity is installed (wind in the north and on the coast, solar in the south). The *demand* weight is used for the national temperature.
 
-This is acceptable here because the Dunkelflaute rule depends only on weather, and the 2030 scenario rescales demand anyway. For calibrated studies, replace it with metered load from the **ENTSO-E Transparency Platform** (actual total load, Germany) or **SMARD** (Bundesnetzagentur).
+| Point | Lat | Lon | Wind weight | Solar weight | Demand weight |
+|---|---|---|---|---|---|
+| Schleswig-Holstein | 54.40 | 9.60 | 0.25 | 0.03 | 0.05 |
+| Lower Saxony coast | 53.30 | 7.90 | 0.25 | 0.07 | 0.10 |
+| Mecklenburg | 53.80 | 12.30 | 0.15 | 0.05 | 0.03 |
+| Brandenburg | 52.50 | 13.60 | 0.20 | 0.10 | 0.12 |
+| North Rhine-Westphalia | 51.40 | 7.30 | 0.05 | 0.15 | 0.30 |
+| Bavaria | 48.60 | 11.50 | 0.05 | 0.35 | 0.22 |
+| Baden-Württemberg | 48.60 | 9.00 | 0.05 | 0.25 | 0.18 |
 
-**Checks.** The real Dunkelflauten of 16–25 January 2017, early November 2024, 11–13 December 2024 and 25–28 December 2024 are found in the data without tuning. Wind and temperature anomalies are positively correlated (about +0.40 in Oct–Mar): calm comes with cold.
+### `data/processed/hourly_country.csv` — how each column is built (`scripts/02_features.py`)
+Germany, hourly, 2010-01-01 00:00 → 2025-12-31 23:00 UTC, 140,256 hours, no gaps.
+
+| Column | Unit | Construction |
+|---|---|---|
+| `cf_wind` | 0–1 | Simplified turbine power curve applied to `wind_speed_100m` at each point: 0 below 3 m/s, cubic between 3 and 12 m/s, 1 up to 25 m/s, 0 above. Then ×0.88 for wakes, availability and electrical losses, and a wind-weighted national average. |
+| `cf_solar` | 0–1 | GHI/1000 × (1 + γ·(T<sub>cell</sub> − 25 °C)) × PR, with T<sub>cell</sub> = T + GHI/800 × 25 °C, γ = −0.004/°C and PR = 0.86. Each point is scaled so its annual yield matches PVGIS, then solar-weighted. |
+| `t2m` | °C | Demand-weighted average of the 7 points' 2 m temperature |
+| `hdd_day` | °C·day | Eurostat convention: 18 °C − daily mean temperature if the mean is ≤ 15 °C, otherwise 0 |
+| `demand_gw` | GW | **Modelled demand, not metered load.** Daily shape (two cosines, evening peak) × weekly factor (weekends 0.88) × (1 + 0.012 × `hdd_day`), scaled to 500 TWh/year. No public holidays and no year-to-year changes. |
+| `demand_essential_gw` | GW | 0.65 × `demand_gw` (scenario assumption) |
+
+**About the demand column.** Synthetic demand is acceptable here: the Dunkelflaute rule depends only on weather, and the 2030 scenario rescales demand anyway. For calibrated studies, replace it with metered load from the **ENTSO-E Transparency Platform** (actual total load, Germany) or **SMARD** (Bundesnetzagentur).
+
+**Checks.**
+- **Real events found without tuning:** 16–25 January 2017, early November 2024, 11–13 December 2024 and 25–28 December 2024.
+- **Wind and temperature move together:** daily anomalies are positively correlated (about +0.40 in Oct–Mar), i.e. calm comes with cold.
+
+### Derived datasets
+
+| File | Built from | Script |
+|---|---|---|
+| `models/generatore_params.json`: weather regimes, transition matrix, climatology of expected wind/solar output, 1-in-10/100/1000 scenarios, validation | `hourly_country.csv`, Nov–Jan 2010-11 … 2024-25 | `03_addestra_generatore.py` (fixed seeds) |
+| `data/simulazione_dunkelflaute_nov2029_gen2030.csv`: hourly Nov 2029 – Jan 2030 (2,208 hours) with a 3-day Dunkelflaute at −80% of expected output | `hourly_country.csv` + 2030 assumptions below | `04_genera_dataset_2029_2030.py` (seed 42) |
 
 ### 2030 scenario: external sources for the assumptions
 
@@ -373,7 +401,7 @@ This is acceptable here because the Dunkelflaute rule depends only on weather, a
 | Demand growth to 2030 | +12.5% on average; night +14%, morning +10%, afternoon +9%, evening +15% | Wood Mackenzie, *Europe Power Markets Strategic Planning Outlook 2026* (European demand +11% 2025→2030); Universidad Pontificia Comillas, *European Power Demand Forecast 2030* (+4% to +20% vs 2021) |
 | Wind + solar capacity | 439 GW, split 0.65 / 0.35 | Team assumption (fleet producing about 130% of average demand) |
 | Backup plants | 40 GW | Order of magnitude of German gas-fired capacity plus biomass |
-| Essential share of demand | 65% | Scenario assumption (stated and adjustable in the code) |
+| Essential share of demand | 65% | Scenario assumption (stated and adjustable) |
 
 ### Sources for the mitigation actions
 Shown in the app's Notes:
@@ -383,16 +411,12 @@ Shown in the app's Notes:
 - **Communities:** France's EcoWatt saving campaigns.
 - **Context, 2024 price spikes:** Bundesnetzagentur and Bundeskartellamt (2025), study of electricity price peaks during the Dunkelflauten of November and December 2024 (day-ahead peak €936/MWh on 12 December 2024).
 
-### To be confirmed by the team before publication
-- [ ] Exact coordinates and weights of the 9 Open-Meteo points
-- [ ] Exact power-curve parameters and solar temperature correction
-- [ ] The script that produced `hourly_country.csv` (add it to `scripts/` for end-to-end reproducibility from ERA5)
-- [ ] How `demand_gw` was modelled (profile and calibration source)
-
 ## References
 - Hersbach, H. et al. (2020). The ERA5 global reanalysis. *Q. J. R. Meteorol. Soc.* 146, 1999–2049. doi:10.1002/qj.3803
-- Open-Meteo Historical Weather API: https://open-meteo.com/en/docs/historical-weather-api
-- PVGIS, Photovoltaic Geographical Information System (European Commission, Joint Research Centre)
+- Open-Meteo: Historical Weather API and Ensemble API (open-meteo.com)
+- PVGIS, Photovoltaic Geographical Information System, v5.3 (European Commission, Joint Research Centre)
+- Eurostat datasets `nrg_chddr2_a` and `nrg_ind_ren`
+- NASA POWER (power.larc.nasa.gov), optional comparison source
 - ENTSO-E Transparency Platform; SMARD (Bundesnetzagentur): metered load for future validation
 - Rabiner, L. R. (1989). A tutorial on hidden Markov models and selected applications in speech recognition. *Proc. IEEE* 77(2).
 
