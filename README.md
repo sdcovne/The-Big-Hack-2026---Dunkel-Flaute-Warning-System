@@ -1,5 +1,7 @@
 # ⚡ Dunkel-Shield
 
+*Dunkelflaute Early Warning System*
+
 **See the risk → measure it → decide in time.**
 
 In a power grid built mostly on wind and solar, the biggest systemic risk is a *Dunkelflaute*: several days with almost no wind and sun, typically during a cold winter anticyclone. This prototype generates the events history has not shown yet with a small generative AI model, simulates them on a 2030 German grid (Digital Twin), and tells grid operators, industry and energy communities what to do, and by when, days before the event arrives.
@@ -48,7 +50,7 @@ The app is deployed on Streamlit Community Cloud. Open it in the browser, no ins
 Requirements: **Python 3.10+**.
 
 ```bash
-git clone <repository-url> dunkelflaute-ews
+git clone https://github.com/sdcovne/The-Big-Hack-2026---Dunkel-Flaute-Warning-System.git dunkelflaute-ews
 cd dunkelflaute-ews
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
