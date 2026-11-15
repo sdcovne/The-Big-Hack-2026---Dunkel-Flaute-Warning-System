@@ -1,4 +1,4 @@
-# ⚡ Dunkelflaute Early Warning System
+# ⚡ Dunkel-Shield
 
 **See the risk → measure it → decide in time.**
 
