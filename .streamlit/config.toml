@@ -1,0 +1,11 @@
+# Tema chiaro "energia" — Dunkelflaute Early Warning
+[theme]
+base = "light"
+primaryColor = "#0B5CAD"
+backgroundColor = "#F6F8FB"
+secondaryBackgroundColor = "#EAF0F6"
+textColor = "#1B2A41"
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
