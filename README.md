@@ -61,6 +61,7 @@ The app opens at `http://localhost:8501`.
 **Run the command from the repository root.** Streamlit reads the light theme from `.streamlit/config.toml` in the current folder, and the app finds `data/` and `models/` from there.
 
 - **Language:** click 🇬🇧 EN / 🇮🇹 IT at the top right.
+- **AI approach PDF:** the *📄 AI approach (PDF)* button at the top right opens `docs/AI_approach.pdf` on GitHub.
 - **Fonts:** the app loads the Inter font from Google Fonts. Offline, it falls back to the system font.
 
 ---
@@ -105,12 +106,6 @@ Alert levels:
 | **🤖 AI approach** | Why AI; generator accuracy (3 KPIs + table); why the generated maximum duration is longer; duration distribution; learned weather regimes; storage needed (history vs synthetic); forecast scenarios; limitations |
 
 ### 4. Sidebar
-- **Presentation mode.** A guided 5-step demo:
-  1. warning at T−7;
-  2. if we do nothing;
-  3. with the plan;
-  4. stress test with a 1-in-100 event;
-  5. what one day of warning is worth.
 - **2030 power grid assumptions.**
 
   | Assumption | Default |
