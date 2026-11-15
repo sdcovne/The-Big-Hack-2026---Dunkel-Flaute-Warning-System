@@ -1,5 +1,5 @@
 """
-Dunkelflaute Early Warning System — Streamlit app (IT/EN).
+Dunkel-Shield — Dunkelflaute Early Warning System, Streamlit app (IT/EN).
 
 Chain:  ① See (AI generator + forecast scenarios) → ② Measure (Digital Twin) → ③ Decide (actions with deadlines)
         + 🤖 AI approach tab (generator accuracy, validation, limitations).
@@ -20,7 +20,7 @@ from testi import TX, make_t, GIORNI
 
 ROOT = Path(__file__).resolve().parent.parent          # radice del repository
 PARAMS_PATH = str(ROOT / "models" / "generatore_params.json")
-st.set_page_config(page_title="Dunkelflaute Early Warning", page_icon="⚡", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Dunkel-Shield", page_icon="⚡", layout="wide", initial_sidebar_state="expanded")
 
 # ==============================================================================
 # LINGUA (bandierina in alto a destra)
@@ -314,7 +314,7 @@ def c_accumulo(df, pp, key, ip_t, x):
 # ==============================================================================
 # SIDEBAR
 # ==============================================================================
-st.sidebar.markdown(f'<div class="brand">⚡ Dunkelflaute EWS</div><div class="brand-sub">{t("brand_sub")}</div>', unsafe_allow_html=True)
+st.sidebar.markdown(f'<div class="brand">⚡ Dunkel-Shield</div><div class="brand-sub">{t("brand_sub")}</div>', unsafe_allow_html=True)
 
 df_input, fonte = None, None
 for nome in ["simulazione_dunkelflaute_nov2029_gen2030.csv"]:
@@ -379,7 +379,7 @@ st.markdown(f"""
 <div class="hero">
   <div>
     <div class="eyebrow">{t("eyebrow")}</div>
-    <h1>Dunkelflaute Early Warning</h1>
+    <h1>Dunkel-Shield</h1>
     <p>{t("hero_p")}</p>
   </div>
 </div>

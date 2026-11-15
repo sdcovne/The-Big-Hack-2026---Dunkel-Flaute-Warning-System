@@ -2,7 +2,7 @@
 
 TX = {
     # generale
-    "page_title": ("Dunkelflaute Early Warning", "Dunkelflaute Early Warning"),
+    "page_title": ("Dunkel-Shield", "Dunkel-Shield"),
     "brand_sub": ("Vedere · Misurare · Decidere", "See · Measure · Decide"),
     "pdf_btn": ("📄 Approccio AI (PDF)", "📄 AI approach (PDF)"),
     "pdf_help": ("Apri su GitHub l'approfondimento tecnico sul modello generativo (in inglese)",
@@ -278,9 +278,9 @@ TX = {
         (("Risposta delle comunità", "Community response"), ("GW misurati dai contatori vs GW richiesti", "GW measured by smart meters vs GW requested"),
          ("≥ 50%", "≥ 50%")),
     ],
-    "footer": ("Dunkelflaute Early Warning System · prototipo per hackathon · I numeri sono illustrativi: il valore è nella catena "
+    "footer": ("Dunkel-Shield · Dunkelflaute Early Warning System · prototipo per hackathon · I numeri sono illustrativi: il valore è nella catena "
                "vedere → misurare → decidere → verificare, in cui ogni componente si può sostituire con uno più preciso.",
-               "Dunkelflaute Early Warning System · hackathon prototype · Figures are illustrative: the value lies in the "
+               "Dunkel-Shield · Dunkelflaute Early Warning System · hackathon prototype · Figures are illustrative: the value lies in the "
                "see → measure → decide → verify chain, where each component can be replaced with a more accurate one."),
     # v4
     "lead_main": ("Giorni di anticipo rispetto all'evento", "Days of warning before the event"),
